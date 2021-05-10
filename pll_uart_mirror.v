@@ -17,11 +17,15 @@
  *
  */
 
-`include "uart_rx.v"
-`include "uart_tx.v"
 
 module top (
 	input  clk,
+
+  output sclk,
+  output mosi,
+  input  miso,
+  output cs_n,
+
 	input RX,
   	output TX
 //	output reg LED_R,
@@ -96,54 +100,75 @@ uart_tx #(clk_freq, baud) utx1 (
 );
 
 reg [5:0] rx_cnt = 6'd0;
-reg [7:0] rx_data_buf_0 = 1'b0;
-reg [7:0] rx_data_buf_1 = 1'b0;
-reg [7:0] rx_data_buf_2 = 1'b0;
-reg [7:0] rx_data_buf_3 = 1'b0;
-reg [7:0] rx_data_buf_4 = 1'b0;
-reg [7:0] rx_data_buf_5 = 1'b0;
-reg [7:0] rx_data_buf_6 = 1'b0;
-reg [7:0] rx_data_buf_7 = 1'b0;
-reg [7:0] rx_data_buf_8 = 1'b0;
-reg [7:0] rx_data_buf_9 = 1'b0;
-reg [7:0] rx_data_buf_10 = 1'b0;
-reg [7:0] rx_data_buf_11 = 1'b0;
-reg [7:0] rx_data_buf_12 = 1'b0;
-reg [7:0] rx_data_buf_13 = 1'b0;
-reg [7:0] rx_data_buf_14 = 1'b0;
-reg [7:0] rx_data_buf_15 = 1'b0;
-reg [7:0] rx_data_buf_16 = 1'b0;
-reg [7:0] rx_data_buf_17 = 1'b0;
-reg [7:0] rx_data_buf_18 = 1'b0;
-reg [7:0] rx_data_buf_19 = 1'b0;
-reg [7:0] rx_data_buf_20 = 1'b0;
-reg [7:0] rx_data_buf_21 = 1'b0;
-reg [7:0] rx_data_buf_22 = 1'b0;
-reg [7:0] rx_data_buf_23 = 1'b0;
-reg [7:0] rx_data_buf_24 = 1'b0;
-reg [7:0] rx_data_buf_25 = 1'b0;
-reg [7:0] rx_data_buf_26 = 1'b0;
-reg [7:0] rx_data_buf_27 = 1'b0;
-reg [7:0] rx_data_buf_28 = 1'b0;
-reg [7:0] rx_data_buf_29 = 1'b0;
-reg [7:0] rx_data_buf_30 = 1'b0;
-reg [7:0] rx_data_buf_31 = 1'b0;
-reg [7:0] rx_data_buf_32 = 1'b0;
-reg [7:0] rx_data_buf_33 = 1'b0;
-reg [7:0] rx_data_buf_34 = 1'b0;
-reg [7:0] rx_data_buf_35 = 1'b0;
-reg [7:0] rx_data_buf_36 = 1'b0;
-reg [7:0] rx_data_buf_37 = 1'b0;
-reg [7:0] rx_data_buf_38 = 1'b0;
-reg [7:0] rx_data_buf_39 = 1'b0;
-reg [7:0] rx_data_buf_40 = 1'b0;
-reg [7:0] rx_data_buf_41 = 1'b0;
-reg [7:0] rx_data_buf_42 = 1'b0;
-reg [7:0] rx_data_buf_43 = 1'b0;
-reg [7:0] rx_data_buf_44 = 1'b0;
-reg [7:0] rx_data_buf_45 = 1'b0;
-reg [7:0] rx_data_buf_46 = 1'b0;
-reg [7:0] rx_data_buf_47 = 1'b0;
+reg [7:0] rx_data_buf_0 = 8'd1;
+reg [7:0] rx_data_buf_1 = 8'd2;
+reg [7:0] rx_data_buf_2 = 8'd3;
+reg [7:0] rx_data_buf_3 = 8'd4;
+reg [7:0] rx_data_buf_4 = 8'd5;
+reg [7:0] rx_data_buf_5 = 8'd6;
+reg [7:0] rx_data_buf_6 = 8'd0;
+reg [7:0] rx_data_buf_7 = 8'd0;
+reg [7:0] rx_data_buf_8 = 8'd0;
+reg [7:0] rx_data_buf_9 = 8'd0;
+reg [7:0] rx_data_buf_10 = 8'd0;
+reg [7:0] rx_data_buf_11 = 8'd0;
+reg [7:0] rx_data_buf_12 = 8'd0;
+reg [7:0] rx_data_buf_13 = 8'd0;
+reg [7:0] rx_data_buf_14 = 8'd0;
+reg [7:0] rx_data_buf_15 = 8'd0;
+reg [7:0] rx_data_buf_16 = 8'd0;
+reg [7:0] rx_data_buf_17 = 8'd0;
+reg [7:0] rx_data_buf_18 = 8'd0;
+reg [7:0] rx_data_buf_19 = 8'd0;
+reg [7:0] rx_data_buf_20 = 8'd0;
+reg [7:0] rx_data_buf_21 = 8'd0;
+reg [7:0] rx_data_buf_22 = 8'd0;
+reg [7:0] rx_data_buf_23 = 8'd0;
+reg [7:0] rx_data_buf_24 = 8'd0;
+reg [7:0] rx_data_buf_25 = 8'd0;
+reg [7:0] rx_data_buf_26 = 8'd0;
+reg [7:0] rx_data_buf_27 = 8'd0;
+reg [7:0] rx_data_buf_28 = 8'd0;
+reg [7:0] rx_data_buf_29 = 8'd0;
+reg [7:0] rx_data_buf_30 = 8'd0;
+reg [7:0] rx_data_buf_31 = 8'd0;
+reg [7:0] rx_data_buf_32 = 8'd0;
+reg [7:0] rx_data_buf_33 = 8'd0;
+reg [7:0] rx_data_buf_34 = 8'd0;
+reg [7:0] rx_data_buf_35 = 8'd0;
+reg [7:0] rx_data_buf_36 = 8'd0;
+reg [7:0] rx_data_buf_37 = 8'd0;
+reg [7:0] rx_data_buf_38 = 8'd0;
+reg [7:0] rx_data_buf_39 = 8'd0;
+reg [7:0] rx_data_buf_40 = 8'd0;
+reg [7:0] rx_data_buf_41 = 8'd0;
+reg [7:0] rx_data_buf_42 = 8'd0;
+reg [7:0] rx_data_buf_43 = 8'd0;
+reg [7:0] rx_data_buf_44 = 8'd0;
+reg [7:0] rx_data_buf_45 = 8'd0;
+reg [7:0] rx_data_buf_46 = 8'd0;
+reg [7:0] rx_data_buf_47 = 8'd0;
+
+reg [22:0] cnt = 23'd0;
+reg rx_eop_1 = 1'b0;
+
+
+// always@(posedge clk_42mhz)begin
+//     cnt <= cnt + 1'b1;
+// end
+
+// always@(posedge clk_42mhz)begin
+//     if(cnt==23'd6000000||cnt==23'd6000001)begin
+// //        data_tx <= 8'b0;
+//         rx_eop_1 <= 1'b1;
+//     end
+//     else begin
+// //        data_tx <= data_tx;
+//         rx_eop_1 <= 1'b0;
+//     end
+// end
+
+
 
 always@(posedge clk_42mhz)begin
   if(rx1_ready)
@@ -359,16 +384,18 @@ always @(posedge clk_42mhz) begin
         6'd35: data_buf <= rx_data_buf_35;
         6'd36: data_buf <= rx_data_buf_36;
         6'd37: data_buf <= rx_data_buf_37;
-        6'd38: data_buf <= rx_data_buf_38;
-        6'd39: data_buf <= rx_data_buf_39;
-        6'd40: data_buf <= rx_data_buf_40;
-        6'd41: data_buf <= rx_data_buf_41;
-        6'd42: data_buf <= rx_data_buf_42;
-        6'd43: data_buf <= rx_data_buf_43;
-        6'd44: data_buf <= rx_data_buf_44;
-        6'd45: data_buf <= rx_data_buf_45;
-        6'd46: data_buf <= rx_data_buf_46;
-        6'd47: data_buf <= rx_data_buf_47;
+        6'd38: data_buf <= data_spi_rx;
+        6'd39: data_buf <= xdata_reg[19:12];
+        6'd40: data_buf <= xdata_reg[11:4];
+        6'd41: data_buf <= xdata_reg[3:0];
+        6'd42: data_buf <= ydata_reg[19:12];
+        6'd43: data_buf <= ydata_reg[11:4];
+        6'd44: data_buf <= ydata_reg[3:0];
+        6'd45: data_buf <= zdata_reg[19:12];
+        6'd46: data_buf <= zdata_reg[11:4];
+        // 6'd47: data_buf <= rx_data_buf_47;
+        6'd47: data_buf <= zdata_reg[3:0];
+        
         default: data_buf <= 8'b0;
       endcase
 //      data_buf <= rx1_data;
@@ -397,6 +424,96 @@ always @(posedge clk_42mhz) begin
     end
   end
 end
+
+reg rst = 1'b0;
+reg [7:0] data_spi_tx = 8'h08;
+wire [7:0] data_spi_rx;
+wire req_spi;
+wire done_spi;
+reg rx_eop_spi = 1'b0;
+reg [19:0] xdata_reg;
+reg [19:0] ydata_reg;
+reg [19:0] zdata_reg;
+wire [19:0] xdata;
+wire [19:0] ydata;
+wire [19:0] zdata;
+
+
+always@(posedge clk_42mhz)begin
+  rx_eop_spi <= rx_eop;
+end
+
+assign req_spi = rx_eop_spi | rx_eop;
+
+reg flag = 1'b0;
+reg data_tx = 15'h2c01;
+// always@(posedge clk_42mhz)begin
+//   if(rx_eop)
+//     flag <= ~flag;
+//   else
+//     flag <= flag;
+// end
+
+wire sclk_wr, sclk_rd, mosi_rd, mosi_wr, cs_n_rd, cs_n_wr, req_wr, req_rd;
+
+spi_wr spi_wr(
+.clk(clk_42mhz),
+.rst(rst),
+.sclk(sclk_wr),
+.data_tx(data_tx),
+.req(req_wr),
+.tx(mosi_wr),
+.rx(miso),
+.cs_n(cs_n_wr),
+.done(done)
+);
+
+assign req_wr = flag ? rx_eop : 1'b0;
+assign req_rd = flag ? 1'b0 : rx_eop;
+
+assign sclk = flag ? sclk_wr : sclk_rd;
+assign mosi = flag ? mosi_wr : mosi_rd;
+assign cs_n = flag ? cs_n_wr : cs_n_rd;
+
+spi spi(
+    .clk(clk_42mhz),
+    .rst(rst),
+    .sclk(sclk_rd),
+    .data_tx(data_spi_tx),
+    .req(req_rd),
+    .tx(mosi_rd),
+    .rx(miso),
+    .data_rx(data_spi_rx),
+    .cs_n(cs_n_rd),
+    .done(done_spi)
+);
+
+// adxl355 adxl355(
+//   .clk(clk_42mhz),
+//   .rst(rst),
+//   .uart_eop(rx_eop),
+//   .rx(miso),
+//   .tx(mosi),
+//   .sclk(sclk),
+//   .cs_n(cs_n),
+//   .xdata(xdata),
+//   .ydata(ydata),
+//   .zdata(zdata),
+//   .done(done_spi)
+// );
+
+// always@(posedge clk_42mhz)begin
+//   if(done_spi)begin
+//     xdata_reg <= xdata;
+//     ydata_reg <= ydata;
+//     zdata_reg <= zdata;
+//   end
+//   else begin
+//     xdata_reg <= xdata_reg;
+//     ydata_reg <= ydata_reg;
+//     zdata_reg <= zdata_reg;
+//   end
+// end
 
 // Loopback the TX and RX lines with no processing
 // Useful as a sanity check ;-)
