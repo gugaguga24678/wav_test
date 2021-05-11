@@ -2,22 +2,22 @@ module spi(
     input               clk,
     input               rst,
     output reg          sclk = 1'b1,
-    input       [7:0]   data_tx,
+    input       [15:0]   data_tx,
     input               req,
+    input               wr_en,
     output reg          tx,
     input               rx,
     output reg  [7:0]   data_rx,
     output reg          cs_n,
-    output reg          done
+    output reg          done = 1'b0
 );
 
 reg tx_reg;
 reg cs_n_reg;
 reg [7:0] data_rx_reg = 8'd0;
-reg [7:0] data_tx_reg = 8'd0;
+reg [15:0] data_tx_reg = 8'd0;
 reg [5:0] cnt = 0;
 reg flag = 1'b0;
-reg done = 1'b0;
 
 reg req_d1;
 wire req_reg;
@@ -115,7 +115,10 @@ always@(posedge clk)begin
             cs_n_reg <= 1'b0;
         end
         6'd15:begin
-            tx_reg <= 1'b1;
+            if(wr_en)
+                tx_reg <= 1'b0;
+            end
+                tx_reg <= 1'b1;
             data_rx_reg <= 8'b0;
             data_tx_reg <= data_tx_reg;
             data_rx <= data_rx;
@@ -123,7 +126,10 @@ always@(posedge clk)begin
             cs_n_reg <= 1'b0;
         end
         6'd17:begin
-            tx_reg <= 1'b0;
+            if(wr_en)
+                tx_reg <= data_tx_reg[15];
+            else
+                tx_reg <= 1'b0;
             data_rx_reg <= 8'b0;
             data_tx_reg <= data_tx_reg;
             data_rx <= data_rx;
@@ -131,7 +137,10 @@ always@(posedge clk)begin
             cs_n_reg <= 1'b0;
         end
         6'd19:begin
-            tx_reg <= 1'b0;
+            if(wr_en)
+                tx_reg <= data_tx_reg[14];
+            else
+                tx_reg <= 1'b0;
             data_rx_reg[7] <= rx;
             data_tx_reg <= data_tx_reg;
             data_rx <= data_rx;
@@ -139,7 +148,10 @@ always@(posedge clk)begin
             cs_n_reg <= 1'b0;
         end
         6'd21:begin
-            tx_reg <= 1'b0;
+            if(wr_en)
+                tx_reg <= data_tx_reg[13];
+            else
+                tx_reg <= 1'b0;
             data_rx_reg[6] <= rx;
             data_tx_reg <= data_tx_reg;
             data_rx <= data_rx;
@@ -147,7 +159,10 @@ always@(posedge clk)begin
             cs_n_reg <= 1'b0;
         end
         6'd23:begin
-            tx_reg <= 1'b0;
+            if(wr_en)
+                tx_reg <= data_tx_reg[12];
+            else
+                tx_reg <= 1'b0;
             data_rx_reg[5] <= rx;
             data_tx_reg <= data_tx_reg;
             data_rx <= data_rx;
@@ -155,7 +170,10 @@ always@(posedge clk)begin
             cs_n_reg <= 1'b0;
         end
         6'd25:begin
-            tx_reg <= 1'b0;
+            if(wr_en)
+                tx_reg <= data_tx_reg[11];
+            else
+                tx_reg <= 1'b0;
             data_rx_reg[4] <= rx;
             data_tx_reg <= data_tx_reg;
             data_rx <= data_rx;
@@ -163,7 +181,10 @@ always@(posedge clk)begin
             cs_n_reg <= 1'b0;
         end
         6'd27:begin
-            tx_reg <= 1'b0;
+            if(wr_en)
+                tx_reg <= data_tx_reg[10];
+            else
+                tx_reg <= 1'b0;
             data_rx_reg[3] <= rx;
             data_tx_reg <= data_tx_reg;
             data_rx <= data_rx;
@@ -171,7 +192,10 @@ always@(posedge clk)begin
             cs_n_reg <= 1'b0;
         end
         6'd29:begin
-            tx_reg <= 1'b0;
+            if(wr_en)
+                tx_reg <= data_tx_reg[9];
+            else
+                tx_reg <= 1'b0;
             data_rx_reg[2] <= rx;
             data_tx_reg <= data_tx_reg;
             data_rx <= data_rx;
@@ -179,7 +203,10 @@ always@(posedge clk)begin
             cs_n_reg <= 1'b0;
         end
         6'd31:begin
-            tx_reg <= 1'b0;
+            if(wr_en)
+                tx_reg <= data_tx_reg[8];
+            else
+                tx_reg <= 1'b0;
             data_rx_reg[1] <= rx;
             data_tx_reg <= data_tx_reg;
             data_rx <= data_rx;
@@ -191,15 +218,24 @@ always@(posedge clk)begin
             data_rx_reg[0] <= rx;
             data_tx_reg <= data_tx_reg;
             data_rx <= data_rx;
-            done = 1'b0;
-            cs_n_reg <= 1'b0;
+            if(wr_en)begin
+                done = 1'b1;
+                cs_n_reg <= 1'b1;   
+            end
+            else begin
+                done = 1'b0;
+                cs_n_reg <= 1'b0;
+            end
         end
         6'd34:begin
             tx_reg <= 1'b0;
             data_rx_reg <= data_rx_reg;
             data_tx_reg <= data_tx_reg;
             data_rx <= data_rx_reg;
-            done = 1'b1;
+            if(wr_en)
+                done <= 1'b0;
+            else
+                done = 1'b1;
             cs_n_reg <= 1'b1;
         end
         6'd35:begin
