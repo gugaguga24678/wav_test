@@ -149,13 +149,13 @@ always@(posedge clk)begin
             done = 1'b0;
             cs_n_reg <= 1'b0;
         end
-        6'd32:begin
+        6'd33:begin
             tx_reg <= 1'b0;
             data_tx_reg <= data_tx_reg;
             done = 1'b1;
             cs_n_reg <= 1'b1;
         end
-        6'd33:begin
+        6'd34:begin
             tx_reg <= 1'b0;
             data_tx_reg <= data_tx_reg;
             done = 1'b0;
