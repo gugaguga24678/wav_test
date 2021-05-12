@@ -47,7 +47,9 @@ wire done;
 reg [19:0] xdata;
 reg [19:0] ydata;
 reg [19:0] zdata;
-
+reg [7:0] ram_data_in;
+reg [7:0] temp1;
+reg [7:0] temp2;
 pll pll_inst(
     .PACKAGEPIN(clk),
     .PLLOUTCORE(clk_42mhz),
@@ -65,7 +67,7 @@ uart_rx urx1 (
 );
 
 SB_SPRAM256KA ramfn_inst1(
-    .DATAIN(rx1_data),
+    .DATAIN(ram_data_in),
     .ADDRESS(addr_1),
     .MASKWREN(4'b1111),
     .WREN(wren_1),
@@ -78,7 +80,7 @@ SB_SPRAM256KA ramfn_inst1(
 );
 
 SB_SPRAM256KA ramfn_inst2(
-    .DATAIN(rx1_data),
+    .DATAIN(ram_data_in),
     .ADDRESS(addr_2),
     .MASKWREN(4'b1111),
     .WREN(wren_2),
@@ -131,16 +133,30 @@ end
 
 always@(posedge clk_42mhz)begin
   case(rx_cnt)
-    9'd35: 
-    9'd83:
-    9'd131:
-    9'd179:
-    9'd227:
-    9'd275:
-    9'd323:
-    9'd371:
-
-    
+    9'd35, 9'd83, 9'd131, 9'd179, 9'd227, 9'd275, 9'd323, 9'd371:
+        ram_data_in <= temp1;
+    9'd36, 9'd84, 9'd132, 9'd180, 9'd228, 9'd276, 9'd324, 9'd372:
+        ram_data_in <= temp2;
+    9'd37, 9'd85, 9'd133, 9'd181, 9'd229, 9'd277, 9'd325, 9'd373:
+        ram_data_in <= xdata[19:12];
+    9'd38, 9'd86, 9'd134, 9'd182, 9'd230, 9'd278, 9'd326, 9'd374:
+        ram_data_in <= xdata[11:4];
+    9'd39, 9'd87, 9'd135, 9'd183, 9'd231, 9'd279, 9'd327, 9'd375:
+        ram_data_in <= xdata[3:0];
+    9'd40, 9'd88, 9'd136, 9'd184, 9'd232, 9'd280, 9'd328, 9'd376:
+        ram_data_in <= ydata[19:12];
+    9'd41, 9'd89, 9'd137, 9'd185, 9'd233, 9'd281, 9'd329, 9'd377:
+        ram_data_in <= ydata[11:4];
+    9'd42, 9'd90, 9'd138, 9'd186, 9'd234, 9'd282, 9'd330, 9'd378:
+        ram_data_in <= ydata[3:0];
+    9'd43, 9'd91, 9'd139, 9'd187, 9'd235, 9'd283, 9'd331, 9'd379:
+        ram_data_in <= zdata[19:12];
+    9'd44, 9'd92, 9'd140, 9'd188, 9'd236, 9'd284, 9'd332, 9'd380:
+        ram_data_in <= zdata[11:4];
+    9'd45, 9'd93, 9'd141, 9'd189, 9'd237, 9'd285, 9'd333, 9'd381:
+        ram_data_in <= zdata[3:0];
+    default:
+        ram_data_in <= rx1_data;    
 end
 
 // always@(posedge clk_42mhz)begin
@@ -207,7 +223,7 @@ always@(posedge clk_42mhz)
 always@(posedge clk_42mhz)begin
     if(rx_cnt==6'd2&&rx1_ready)
         spi_flag <= 1'b1;
-    else if(cnt==4'd11&&done)
+    else if(cnt==4'd13&&done)
         spi_flag <= 1'b0;
     else
         spi_flag <= spi_flag;
@@ -243,7 +259,7 @@ always@(posedge clk_42mhz)begin
                     cnt <= cnt;
             end
             4'd3:begin
-                if(cnt_d1==4'd2||cnt_d1==4'd12)
+                if(cnt_d1==4'd2||cnt_d1==4'd14)
                     req <= 1'b1;
                 else
                     req <= 1'b0;
@@ -387,6 +403,38 @@ always@(posedge clk_42mhz)begin
                 end
             end
             4'd12:begin
+                if(cnt_d1==4'd11)
+                    req <= 1'b1;
+                else
+                    req <= 1'b0;
+                wr_en <= 1'b0;
+                data_tx <= 16'h006;
+                if(done)begin
+                    temp1 = data_rx;
+                    cnt <= cnt + 1'b1;
+                end
+                else begin
+                    temp1 <= temp1;
+                    cnt <= cnt;
+                end
+            end
+            4'd13:begin
+                if(cnt_d1==4'd12)
+                    req <= 1'b1;
+                else
+                    req <= 1'b0;
+                wr_en <= 1'b0;
+                data_tx <= 16'h007;
+                if(done)begin
+                    temp2 = data_rx;
+                    cnt <= cnt + 1'b1;
+                end
+                else begin
+                    temp2 <= temp2;
+                    cnt <= cnt;
+                end
+            end
+            4'd14:begin
                 if(spi_flag)
                     cnt <= 4'd3;
                 else
@@ -913,7 +961,7 @@ always@(posedge clk_42mhz)
 always@(posedge clk_42mhz)begin
     if(rx_cnt==6'd2&&rx1_ready)
         spi_flag <= 1'b1;
-    else if(cnt==4'd11&&done)
+    else if(cnt==4'd13&&done)
         spi_flag <= 1'b0;
     else
         spi_flag <= spi_flag;
@@ -949,7 +997,7 @@ always@(posedge clk_42mhz)begin
                     cnt <= cnt;
             end
             4'd3:begin
-                if(cnt_d1==4'd2||cnt_d1==4'd12)
+                if(cnt_d1==4'd2||cnt_d1==4'd14)
                     req <= 1'b1;
                 else
                     req <= 1'b0;
@@ -1093,6 +1141,38 @@ always@(posedge clk_42mhz)begin
                 end
             end
             4'd12:begin
+                if(cnt_d1==4'd11)
+                    req <= 1'b1;
+                else
+                    req <= 1'b0;
+                wr_en <= 1'b0;
+                data_tx <= 16'h006;
+                if(done)begin
+                    temp1 = data_rx;
+                    cnt <= cnt + 1'b1;
+                end
+                else begin
+                    temp1 <= temp1;
+                    cnt <= cnt;
+                end
+            end
+            4'd13:begin
+                if(cnt_d1==4'd12)
+                    req <= 1'b1;
+                else
+                    req <= 1'b0;
+                wr_en <= 1'b0;
+                data_tx <= 16'h007;
+                if(done)begin
+                    temp2 = data_rx;
+                    cnt <= cnt + 1'b1;
+                end
+                else begin
+                    temp2 <= temp2;
+                    cnt <= cnt;
+                end
+            end
+            4'd14:begin
                 if(spi_flag)
                     cnt <= 4'd3;
                 else
