@@ -39,7 +39,7 @@ reg pingpong_flag = 1'b0;
 reg [3:0] rx_eop_cnt = 4'b0;
 
 reg [3:0] cnt_d1;
-reg [3:0] cnt = 4'd0;
+reg [4:0] cnt = 4'd0;
 reg spi_flag = 1'b0;
 
 reg [15:0] data_tx = 16'h0;
@@ -54,6 +54,10 @@ reg [19:0] zdata;
 reg [7:0] ram_data_in;
 reg [7:0] temp1;
 reg [7:0] temp2;
+
+reg [2:0] clk_cnt = 3'd0;
+reg clk_1m92;
+
 pll pll_inst(
     .PACKAGEPIN(clk),
     .PLLOUTCORE(clk_42mhz),
@@ -201,8 +205,8 @@ always @(posedge clk_42mhz) begin
   end
 end
 
-spi spi(
-    .clk(clk_42mhz),
+spi_rm3100 spi_rm3100(
+    .clk(clk_1m92),
     .rst(rst),
     .sclk(sclk),
     .data_tx(data_tx),
@@ -222,13 +226,22 @@ spi spi(
 //         req <= 1'b0;
 // end
 
+always@(posedge clk_42mhz)begin
+    clk_cnt <= clk_cnt + 1'b1;
+end
+
+always@(posedge clk_42mhz)begin
+    if(clk_cnt==3'd3||clk_cnt==3'd7)
+        clk_1m92 <= ~clk_1m92;
+end
+
 always@(posedge clk_42mhz)
     cnt_d1 <= cnt;
     
 always@(posedge clk_42mhz)begin
     if(rx_cnt==6'd2&&rx1_ready)
         spi_flag <= 1'b1;
-    else if(cnt==4'd13&&done)
+    else if(cnt==4'd17&&done)
         spi_flag <= 1'b0;
     else
         spi_flag <= spi_flag;
@@ -237,39 +250,99 @@ end
 always@(posedge clk_42mhz)begin
     if(spi_flag)begin
         case(cnt)
-            4'd0:
+            5'd0:
                 cnt <= cnt + 1'b1;
-            4'd1:begin
+            5'd1:begin
                 if(cnt_d1==4'd0)
                     req <= 1'b1;
                 else
                     req <= 1'b0;
                 wr_en <= 1'b1;
-                data_tx <= 16'h0128;
+                data_tx <= 16'h0004;
                 if(done)
                     cnt <= cnt + 1'b1;
                 else
                     cnt <= cnt;
             end
-            4'd2:begin
+            5'd2:begin
                 if(cnt_d1==4'd1)
                     req <= 1'b1;
                 else
                     req <= 1'b0;
                 wr_en <= 1'b1;
-                data_tx <= 16'h002d;
+                data_tx <= 16'h3205;
                 if(done)
                     cnt <= cnt + 1'b1;
                 else
                     cnt <= cnt;
             end
-            4'd3:begin
-                if(cnt_d1==4'd2||cnt_d1==4'd14)
+            5'd3:begin
+                if(cnt_d1==4'd2)
+                    req <= 1'b1;
+                else
+                    req <= 1'b0;
+                wr_en <= 1'b1;
+                data_tx <= 16'h0006;
+                if(done)
+                    cnt <= cnt + 1'b1;
+                else
+                    cnt <= cnt;
+            end
+            5'd4:begin
+                if(cnt_d1==4'd3)
+                    req <= 1'b1;
+                else
+                    req <= 1'b0;
+                wr_en <= 1'b1;
+                data_tx <= 16'h3207;
+                if(done)
+                    cnt <= cnt + 1'b1;
+                else
+                    cnt <= cnt;
+            end
+            5'd5:begin
+                if(cnt_d1==4'd4)
+                    req <= 1'b1;
+                else
+                    req <= 1'b0;
+                wr_en <= 1'b1;
+                data_tx <= 16'h0008;
+                if(done)
+                    cnt <= cnt + 1'b1;
+                else
+                    cnt <= cnt;
+            end
+            5'd6:begin
+                if(cnt_d1==4'd5)
+                    req <= 1'b1;
+                else
+                    req <= 1'b0;
+                wr_en <= 1'b1;
+                data_tx <= 16'h3209;
+                if(done)
+                    cnt <= cnt + 1'b1;
+                else
+                    cnt <= cnt;
+            end
+            5'd7:begin
+                if(cnt_d1==4'd6)
+                    req <= 1'b1;
+                else
+                    req <= 1'b0;
+                wr_en <= 1'b1;
+                data_tx <= 16'h0c0b;
+                if(done)
+                    cnt <= cnt + 1'b1;
+                else
+                    cnt <= cnt;
+            end
+            5'd8:begin
+                if(cnt_d1==4'd6||cnt_d1==4'd17)
                     req <= 1'b1;
                 else
                     req <= 1'b0;
                 wr_en <= 1'b0;
-                data_tx <= 16'h0008;
+                data_tx <= 16'h0024;
                 if(done)begin
                     xdata[19:12] = data_rx;
                     cnt <= cnt + 1'b1;
@@ -279,13 +352,13 @@ always@(posedge clk_42mhz)begin
                     cnt <= cnt;
                 end
             end
-            4'd4:begin
-                if(cnt_d1==4'd3)
+            5'd9:begin
+                if(cnt_d1==4'd8)
                     req <= 1'b1;
                 else
                     req <= 1'b0;
                 wr_en <= 1'b0;
-                data_tx <= 16'h009;
+                data_tx <= 16'h025;
                 if(done)begin
                     xdata[11:4] = data_rx;
                     cnt <= cnt + 1'b1;
@@ -295,13 +368,13 @@ always@(posedge clk_42mhz)begin
                     cnt <= cnt;
                 end
             end
-            4'd5:begin
-                if(cnt_d1==4'd4)
+            5'd10:begin
+                if(cnt_d1==4'd9)
                     req <= 1'b1;
                 else
                     req <= 1'b0;
                 wr_en <= 1'b0;
-                data_tx <= 16'h00a;
+                data_tx <= 16'h026;
                 if(done)begin
                     xdata[3:0] = data_rx[7:4];
                     cnt <= cnt + 1'b1;
@@ -311,13 +384,13 @@ always@(posedge clk_42mhz)begin
                     cnt <= cnt;
                 end
             end
-            4'd6:begin
-                if(cnt_d1==4'd5)
+            5'd11:begin
+                if(cnt_d1==4'd10)
                     req <= 1'b1;
                 else
                     req <= 1'b0;
                 wr_en <= 1'b0;
-                data_tx <= 16'h000b;
+                data_tx <= 16'h0027;
                 if(done)begin
                     ydata[19:12] = data_rx;
                     cnt <= cnt + 1'b1;
@@ -327,13 +400,13 @@ always@(posedge clk_42mhz)begin
                     cnt <= cnt;
                 end
             end
-            4'd7:begin
-                if(cnt_d1==4'd6)
+            5'd12:begin
+                if(cnt_d1==4'd11)
                     req <= 1'b1;
                 else
                     req <= 1'b0;
                 wr_en <= 1'b0;
-                data_tx <= 16'h00c;
+                data_tx <= 16'h028;
                 if(done)begin
                     ydata[11:4] = data_rx;
                     cnt <= cnt + 1'b1;
@@ -343,13 +416,13 @@ always@(posedge clk_42mhz)begin
                     cnt <= cnt;
                 end
             end
-            4'd8:begin
-                if(cnt_d1==4'd7)
+            5'd13:begin
+                if(cnt_d1==4'd12)
                     req <= 1'b1;
                 else
                     req <= 1'b0;
                 wr_en <= 1'b0;
-                data_tx <= 16'h00d;
+                data_tx <= 16'h029;
                 if(done)begin
                     ydata[3:0] = data_rx[7:4];
                     cnt <= cnt + 1'b1;
@@ -359,13 +432,13 @@ always@(posedge clk_42mhz)begin
                     cnt <= cnt;
                 end
             end
-            4'd9:begin
-                if(cnt_d1==4'd8)
+            5'd14:begin
+                if(cnt_d1==4'd13)
                     req <= 1'b1;
                 else
                     req <= 1'b0;
                 wr_en <= 1'b0;
-                data_tx <= 16'h000e;
+                data_tx <= 16'h002a;
                 if(done)begin
                     zdata[19:12] = data_rx;
                     cnt <= cnt + 1'b1;
@@ -375,13 +448,13 @@ always@(posedge clk_42mhz)begin
                     cnt <= cnt;
                 end
             end
-            4'd10:begin
-                if(cnt_d1==4'd9)
+            5'd15:begin
+                if(cnt_d1==4'd14)
                     req <= 1'b1;
                 else
                     req <= 1'b0;
                 wr_en <= 1'b0;
-                data_tx <= 16'h00f;
+                data_tx <= 16'h02b;
                 if(done)begin
                     zdata[11:4] = data_rx;
                     cnt <= cnt + 1'b1;
@@ -391,13 +464,13 @@ always@(posedge clk_42mhz)begin
                     cnt <= cnt;
                 end
             end
-            4'd11:begin
-                if(cnt_d1==4'd10)
+            5'd16:begin
+                if(cnt_d1==4'd15)
                     req <= 1'b1;
                 else
                     req <= 1'b0;
                 wr_en <= 1'b0;
-                data_tx <= 16'h0010;
+                data_tx <= 16'h002c;
                 if(done)begin
                     zdata[3:0] = data_rx[7:4];
                     cnt <= cnt + 1'b1;
@@ -407,41 +480,9 @@ always@(posedge clk_42mhz)begin
                     cnt <= cnt;
                 end
             end
-            4'd12:begin
-                if(cnt_d1==4'd11)
-                    req <= 1'b1;
-                else
-                    req <= 1'b0;
-                wr_en <= 1'b0;
-                data_tx <= 16'h006;
-                if(done)begin
-                    temp1 = data_rx;
-                    cnt <= cnt + 1'b1;
-                end
-                else begin
-                    temp1 <= temp1;
-                    cnt <= cnt;
-                end
-            end
-            4'd13:begin
-                if(cnt_d1==4'd12)
-                    req <= 1'b1;
-                else
-                    req <= 1'b0;
-                wr_en <= 1'b0;
-                data_tx <= 16'h007;
-                if(done)begin
-                    temp2 = data_rx;
-                    cnt <= cnt + 1'b1;
-                end
-                else begin
-                    temp2 <= temp2;
-                    cnt <= cnt;
-                end
-            end
-            4'd14:begin
+            5'd17:begin
                 if(spi_flag)
-                    cnt <= 4'd3;
+                    cnt <= 5'd8;
                 else
                     cnt <= cnt;
             end
