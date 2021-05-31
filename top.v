@@ -38,7 +38,7 @@ reg [8:0] tx_cnt = 9'd384;
 reg pingpong_flag = 1'b0;
 reg [3:0] rx_eop_cnt = 4'b0;
 
-reg [3:0] cnt_d1;
+reg [4:0] cnt_d1;
 reg [4:0] cnt = 4'd0;
 reg spi_flag = 1'b0;
 
@@ -241,7 +241,7 @@ always@(posedge clk_42mhz)
 always@(posedge clk_42mhz)begin
     if(rx_cnt==6'd2&&rx1_ready)
         spi_flag <= 1'b1;
-    else if(cnt==4'd17&&done)
+    else if(cnt==5'd17&&done)
         spi_flag <= 1'b0;
     else
         spi_flag <= spi_flag;
@@ -253,7 +253,7 @@ always@(posedge clk_42mhz)begin
             5'd0:
                 cnt <= cnt + 1'b1;
             5'd1:begin
-                if(cnt_d1==4'd0)
+                if(cnt_d1==5'd0)
                     req <= 1'b1;
                 else
                     req <= 1'b0;
@@ -265,7 +265,7 @@ always@(posedge clk_42mhz)begin
                     cnt <= cnt;
             end
             5'd2:begin
-                if(cnt_d1==4'd1)
+                if(cnt_d1==5'd1)
                     req <= 1'b1;
                 else
                     req <= 1'b0;
@@ -277,7 +277,7 @@ always@(posedge clk_42mhz)begin
                     cnt <= cnt;
             end
             5'd3:begin
-                if(cnt_d1==4'd2)
+                if(cnt_d1==5'd2)
                     req <= 1'b1;
                 else
                     req <= 1'b0;
@@ -289,7 +289,7 @@ always@(posedge clk_42mhz)begin
                     cnt <= cnt;
             end
             5'd4:begin
-                if(cnt_d1==4'd3)
+                if(cnt_d1==5'd3)
                     req <= 1'b1;
                 else
                     req <= 1'b0;
@@ -301,7 +301,7 @@ always@(posedge clk_42mhz)begin
                     cnt <= cnt;
             end
             5'd5:begin
-                if(cnt_d1==4'd4)
+                if(cnt_d1==5'd4)
                     req <= 1'b1;
                 else
                     req <= 1'b0;
@@ -313,7 +313,7 @@ always@(posedge clk_42mhz)begin
                     cnt <= cnt;
             end
             5'd6:begin
-                if(cnt_d1==4'd5)
+                if(cnt_d1==5'd5)
                     req <= 1'b1;
                 else
                     req <= 1'b0;
@@ -325,19 +325,64 @@ always@(posedge clk_42mhz)begin
                     cnt <= cnt;
             end
             5'd7:begin
-                if(cnt_d1==4'd6)
+                if(cnt_d1==5'd6)
                     req <= 1'b1;
                 else
                     req <= 1'b0;
                 wr_en <= 1'b1;
-                data_tx <= 16'h0c0b;
+                data_tx <= 16'h920b;
                 if(done)
                     cnt <= cnt + 1'b1;
                 else
                     cnt <= cnt;
             end
             5'd8:begin
-                if(cnt_d1==4'd6||cnt_d1==4'd17)
+                if(cnt_d1==5'd7)
+                    req <= 1'b1;
+                else
+                    req <= 1'b0;
+                wr_en <= 1'b1;
+                data_tx <= 16'h7001;
+                if(done)
+                    cnt <= cnt + 1'b1;
+                else
+                    cnt <= cnt;
+            end
+            5'd9:begin
+                if(cnt_d1==5'd8||cnt_d1==5'd21)
+                    req <= 1'b1;
+                else
+                    req <= 1'b0;
+                wr_en <= 1'b1;
+                data_tx <= 16'h7000;
+                if(done)
+                    cnt <= cnt + 1'b1;
+                else
+                    cnt <= cnt;
+            end
+            5'd10:begin
+                req <= 1'b0;
+                wr_en <= 1'b0;
+                data_tx <= data_tx;
+                cnt <= cnt + 1'b1;
+            end
+            5'd11:begin
+                if(cnt_d1==5'd10)
+                    req <= 1'b1;
+                else
+                    req <= 1'b0;
+                wr_en <= 1'b0;
+                data_tx <= 16'h0034;
+                if(done)
+                    if(data_rx==8'h80)
+                        cnt <= cnt + 1'b1;
+                    else
+                        cnt <= 5'd10;
+                else
+                    cnt <= cnt;
+            end
+            5'd12:begin
+                if(cnt_d1==5'd11)
                     req <= 1'b1;
                 else
                     req <= 1'b0;
@@ -352,8 +397,8 @@ always@(posedge clk_42mhz)begin
                     cnt <= cnt;
                 end
             end
-            5'd9:begin
-                if(cnt_d1==4'd8)
+            5'd13:begin
+                if(cnt_d1==5'd12)
                     req <= 1'b1;
                 else
                     req <= 1'b0;
@@ -368,8 +413,8 @@ always@(posedge clk_42mhz)begin
                     cnt <= cnt;
                 end
             end
-            5'd10:begin
-                if(cnt_d1==4'd9)
+            5'd14:begin
+                if(cnt_d1==5'd13)
                     req <= 1'b1;
                 else
                     req <= 1'b0;
@@ -384,8 +429,8 @@ always@(posedge clk_42mhz)begin
                     cnt <= cnt;
                 end
             end
-            5'd11:begin
-                if(cnt_d1==4'd10)
+            5'd15:begin
+                if(cnt_d1==5'd14)
                     req <= 1'b1;
                 else
                     req <= 1'b0;
@@ -400,8 +445,8 @@ always@(posedge clk_42mhz)begin
                     cnt <= cnt;
                 end
             end
-            5'd12:begin
-                if(cnt_d1==4'd11)
+            5'd16:begin
+                if(cnt_d1==5'd15)
                     req <= 1'b1;
                 else
                     req <= 1'b0;
@@ -416,8 +461,8 @@ always@(posedge clk_42mhz)begin
                     cnt <= cnt;
                 end
             end
-            5'd13:begin
-                if(cnt_d1==4'd12)
+            5'd17:begin
+                if(cnt_d1==5'd16)
                     req <= 1'b1;
                 else
                     req <= 1'b0;
@@ -432,8 +477,8 @@ always@(posedge clk_42mhz)begin
                     cnt <= cnt;
                 end
             end
-            5'd14:begin
-                if(cnt_d1==4'd13)
+            5'd18:begin
+                if(cnt_d1==5'd17)
                     req <= 1'b1;
                 else
                     req <= 1'b0;
@@ -448,8 +493,8 @@ always@(posedge clk_42mhz)begin
                     cnt <= cnt;
                 end
             end
-            5'd15:begin
-                if(cnt_d1==4'd14)
+            5'd19:begin
+                if(cnt_d1==5'd18)
                     req <= 1'b1;
                 else
                     req <= 1'b0;
@@ -464,8 +509,8 @@ always@(posedge clk_42mhz)begin
                     cnt <= cnt;
                 end
             end
-            5'd16:begin
-                if(cnt_d1==4'd15)
+            5'd20:begin
+                if(cnt_d1==5'd19)
                     req <= 1'b1;
                 else
                     req <= 1'b0;
@@ -480,9 +525,9 @@ always@(posedge clk_42mhz)begin
                     cnt <= cnt;
                 end
             end
-            5'd17:begin
+            5'd21:begin
                 if(spi_flag)
-                    cnt <= 5'd8;
+                    cnt <= 5'd9;
                 else
                     cnt <= cnt;
             end
