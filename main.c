@@ -1,72 +1,204 @@
-/*-----------------------ADIS16209 Driver Test Code-----------------------------------
+/* USER CODE BEGIN Header */
+/**
+  ******************************************************************************
+  * @file           : main.c
+  * @brief          : Main program body
+  ******************************************************************************
+  * @attention
+  *
+  * <h2><center>&copy; Copyright (c) 2021 STMicroelectronics.
+  * All rights reserved.</center></h2>
+  *
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
+  *
+  ******************************************************************************
+  */
+/* USER CODE END Header */
 
-Author: 		ADI CAST (China Application Support Team)
-Date:			2008-12-22
-Rev:			V1.0
-Description:	Realize ADIS16209 Driver£¬Use ADuC7026 as MCU£¬Development Tool: KEIL C
-				Test program for burst reading and writing register of ADIS16209
----------------------------------------------------------------------------------------------------------*/
-#include <ADuC7026.h>
-#include "ADIS16209_IO.h"
-#include "ADIS16209.h"
+/* Includes ------------------------------------------------------------------*/
+#include "main.h"
+#include "dma.h"
+#include "spi.h"
+#include "usart.h"
+#include "gpio.h"
 
-unsigned char RegisterData[8];
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
+#include "ADISl6209.h"
+#include <stdio.h>
+#include <stdlib.h>
+/* USER CODE END Includes */
 
-void putchar(unsigned char ch)/* Write character to Serial Port  */  
-{          
-	COMTX = ch;				 //COMTX is an 8-bit transmit register.
-    while(!(0x020==(COMSTA0 & 0x020)))
-    {;}
+/* Private typedef -----------------------------------------------------------*/
+/* USER CODE BEGIN PTD */
+
+/* USER CODE END PTD */
+
+/* Private define ------------------------------------------------------------*/
+/* USER CODE BEGIN PD */
+/* USER CODE END PD */
+
+/* Private macro -------------------------------------------------------------*/
+/* USER CODE BEGIN PM */
+
+/* USER CODE END PM */
+
+/* Private variables ---------------------------------------------------------*/
+
+/* USER CODE BEGIN PV */
+
+/* USER CODE END PV */
+
+/* Private function prototypes -----------------------------------------------*/
+void SystemClock_Config(void);
+/* USER CODE BEGIN PFP */
+
+/* USER CODE END PFP */
+
+/* Private user code ---------------------------------------------------------*/
+/* USER CODE BEGIN 0 */
+int fputc(int ch,FILE *f){
+ uint8_t temp[1]={ch};
+ HAL_UART_Transmit(&huart1,temp,1,2);
+ return ch;
 }
+  uint16_t id;
+/* USER CODE END 0 */
 
-void ADuC7026_Initiate(void)
+/**
+  * @brief  The application entry point.
+  * @retval int
+  */
+int main(void)
 {
-    //Clock Initial
-    POWKEY1 = 0x01;				//Start PLL Setting
-    POWCON = 0x00;				//Set PLL Active Mode With CD = 0  CPU CLOCK DIVIDER = 41.78MHz
-    POWKEY2 = 0xF4;				//Finish PLL Setting
+  /* USER CODE BEGIN 1 */
 
-	GP1CON = 0x011;					//PIN set up for UART
- 
-	GP0DAT = GP0DAT & 0xDFFFFFFF;	//Configure the P0.5 pin as input for DOUT of ADIS16209
+  /* USER CODE END 1 */
 
-	GP4DAT = GP4DAT | 0x38380000;	//Configure the P4.3 pin as output for CS of ADIS16209, CS Stall High
-									//Configure the P4.4 pin as output for SCLK of ADIS16209, SCLK Stall High
-									//Configure the P4.5 pin as output for DIN of ADIS16209	
-   	//UART Initial£¬Baud Rate = 9600
-	COMCON0 = 0x080;  
-	COMDIV0 = 0x088;    		
-	COMDIV1 = 0x000;
-	COMCON0 = 0x007; 
-}   
-void main (void)
-{ 
-    ADuC7026_Initiate();
+  /* MCU Configuration--------------------------------------------------------*/
 
-	RegisterData[0] = 0x01;
-	RegisterData[1] = 0x23;
-	RegisterData[2] = 0x05;
-	RegisterData[3] = 0xA6;
-	putchar(RegisterData[0]);
-	putchar(RegisterData[1]);
-	putchar(RegisterData[2]);
-	putchar(RegisterData[3]);
+  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+  HAL_Init();
 
-    WriteToADIS16209ViaSpi(XACCL_NULL,2,RegisterData);
+  /* USER CODE BEGIN Init */
 
-	RegisterData[0] = 0x88;
-	RegisterData[1] = 0x88;
-	RegisterData[2] = 0x88;
-	RegisterData[3] = 0x88;
+  /* USER CODE END Init */
 
-    ReadFromADIS16209ViaSpi(XACCL_NULL,2,RegisterData);
+  /* Configure the system clock */
+  SystemClock_Config();
 
-	putchar(RegisterData[0]);
-	putchar(RegisterData[1]);
-	putchar(RegisterData[2]);
-	putchar(RegisterData[3]);	
+  /* USER CODE BEGIN SysInit */
 
-	while(1)
-    {;}
+  /* USER CODE END SysInit */
 
+  /* Initialize all configured peripherals */
+  MX_GPIO_Init();
+  MX_DMA_Init();
+  MX_SPI1_Init();
+  MX_USART1_UART_Init();
+  /* USER CODE BEGIN 2 */
+//bsp_adis.XINCL_INI = 0x3fff;
+  char S1[10];
+  char S2[10];
+
+  /* USER CODE END 2 */
+
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+  while (1)
+  {
+    /* USER CODE END WHILE */
+
+    /* USER CODE BEGIN 3 */
+//	  id = ADIS_Read(SMPL_PRD);
+      Export_XINCL();
+	  Export_YINCL();
+	  sprintf(S1,"%.3f",bsp_adis.XINCL_TRAN);
+	  sprintf(S2,"%.3f",bsp_adis.YINCL_TRAN);
+	  printf("x:%s",S1);
+	  printf("y:%s",S2);
+	  HAL_Delay(1000);
+  }
+  /* USER CODE END 3 */
+} 
+
+/**
+  * @brief System Clock Configuration
+  * @retval None
+  */
+void SystemClock_Config(void)
+{
+  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+
+  /** Configure the main internal regulator output voltage 
+  */
+  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+  /** Initializes the CPU, AHB and APB busses clocks 
+  */
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL3;
+  RCC_OscInitStruct.PLL.PLLDIV = RCC_PLL_DIV3;
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /** Initializes the CPU, AHB and APB busses clocks 
+  */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
+  {
+    Error_Handler();
+  }
 }
+
+/* USER CODE BEGIN 4 */
+void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
+{
+   bsp_adis.flag = 1;
+}
+/* USER CODE END 4 */
+
+/**
+  * @brief  This function is executed in case of error occurrence.
+  * @retval None
+  */
+void Error_Handler(void)
+{
+  /* USER CODE BEGIN Error_Handler_Debug */
+  /* User can add his own implementation to report the HAL error return state */
+
+  /* USER CODE END Error_Handler_Debug */
+}
+
+#ifdef  USE_FULL_ASSERT
+/**
+  * @brief  Reports the name of the source file and the source line number
+  *         where the assert_param error has occurred.
+  * @param  file: pointer to the source file name
+  * @param  line: assert_param error line source number
+  * @retval None
+  */
+void assert_failed(uint8_t *file, uint32_t line)
+{ 
+  /* USER CODE BEGIN 6 */
+  /* User can add his own implementation to report the file name and line number,
+     tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+  /* USER CODE END 6 */
+}
+#endif /* USE_FULL_ASSERT */
+
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
