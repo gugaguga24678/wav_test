@@ -42,27 +42,29 @@ reg [4:0] cnt_d1;
 reg [4:0] cnt = 4'd0;
 reg spi_flag = 1'b0;
 
-reg [15:0] data_tx = 16'h0;
+reg [15:0] data_tx = 16'h0B;
 wire [7:0] data_rx;
 reg req;
-reg wr_en;
+reg wr_en = 1'b0;
 wire done;
 
 reg [19:0] xdata;
 reg [19:0] ydata;
 reg [19:0] zdata;
 reg [7:0] ram_data_in;
-reg [7:0] temp1;
+reg [7:0] temp1 = 8'h0;
 reg [7:0] temp2;
 
 reg [2:0] clk_cnt = 3'd0;
-reg clk_1m92;
+reg clk_1m92 = 1'b0;
+
+// assign clk_42mhz = clk;
 
 pll pll_inst(
-    .PACKAGEPIN(clk),
-    .PLLOUTCORE(clk_42mhz),
-    .PLLOUTGLOBAL(),
-    .RESET(1'b1)
+   .PACKAGEPIN(clk),
+   .PLLOUTCORE(clk_42mhz),
+   .PLLOUTGLOBAL(),
+   .RESET(1'b1)
 );
 
 uart_rx urx1 (
@@ -75,37 +77,37 @@ uart_rx urx1 (
 );
 
 SB_SPRAM256KA ramfn_inst1(
-    .DATAIN(ram_data_in),
-    .ADDRESS(addr_1),
-    .MASKWREN(4'b1111),
-    .WREN(wren_1),
-    .CHIPSELECT(1'b1),
-    .CLOCK(clk_42mhz),
-    .STANDBY(1'b0),
-    .SLEEP(1'b0),
-    .POWEROFF(1'b1),
-    .DATAOUT(data_out_1)
+   .DATAIN(ram_data_in),
+   .ADDRESS(addr_1),
+   .MASKWREN(4'b1111),
+   .WREN(wren_1),
+   .CHIPSELECT(1'b1),
+   .CLOCK(clk_42mhz),
+   .STANDBY(1'b0),
+   .SLEEP(1'b0),
+   .POWEROFF(1'b1),
+   .DATAOUT(data_out_1)
 );
 
 SB_SPRAM256KA ramfn_inst2(
-    .DATAIN(ram_data_in),
-    .ADDRESS(addr_2),
-    .MASKWREN(4'b1111),
-    .WREN(wren_2),
-    .CHIPSELECT(1'b1),
-    .CLOCK(clk_42mhz),
-    .STANDBY(1'b0),
-    .SLEEP(1'b0),
-    .POWEROFF(1'b1),
-    .DATAOUT(data_out_2)
+   .DATAIN(ram_data_in),
+   .ADDRESS(addr_2),
+   .MASKWREN(4'b1111),
+   .WREN(wren_2),
+   .CHIPSELECT(1'b1),
+   .CLOCK(clk_42mhz),
+   .STANDBY(1'b0),
+   .SLEEP(1'b0),
+   .POWEROFF(1'b1),
+   .DATAOUT(data_out_2)
 );
 
 uart_tx utx1 (
-	.clk(clk_42mhz),
-	.tx_start(tx1_start),
-	.tx_data(tx1_data),
-	.tx(TX),
-	.tx_busy(tx1_busy)
+    .clk(clk_42mhz),
+    .tx_start(tx1_start),
+    .tx_data(tx1_data),
+    .tx(TX),
+    .tx_busy(tx1_busy)
 );
 
 always@(posedge clk_42mhz)begin
@@ -142,9 +144,11 @@ end
 always@(posedge clk_42mhz)begin
   case(rx_cnt)
     9'd35, 9'd83, 9'd131, 9'd179, 9'd227, 9'd275, 9'd323, 9'd371:
-        ram_data_in <= temp1;
+       ram_data_in <= temp1;
+        // ram_data_in <= 8'h12;
     9'd36, 9'd84, 9'd132, 9'd180, 9'd228, 9'd276, 9'd324, 9'd372:
         ram_data_in <= temp2;
+        // ram_data_in <= 8'hab;
     9'd37, 9'd85, 9'd133, 9'd181, 9'd229, 9'd277, 9'd325, 9'd373:
         ram_data_in <= xdata[19:12];
     9'd38, 9'd86, 9'd134, 9'd182, 9'd230, 9'd278, 9'd326, 9'd374:
@@ -205,18 +209,40 @@ always @(posedge clk_42mhz) begin
   end
 end
 
+reg req_d1, req_d2, req_d3, req_d4, req_d5, req_d6, req_d7, req_d8, req_d9, req_d10, req_d11, req_d12, req_d13, req_d14, req_d15;
+wire req_reg;
+wire done_reg;
+reg done_d1, done_d2, done_d3, done_d4, done_d5, done_d6, done_d7, done_d8, done_d9, done_d10, done_d11, done_d12, done_d13, done_d14, done_d15;
+
+always@(posedge clk_42mhz)begin
+    done_d1 <= done_reg;
+    done_d2 <= done_d1;
+    done_d3 <= done_d2;
+    done_d4 <= done_d3;
+    done_d5 <= done_d4;
+    done_d6 <= done_d5;
+    done_d7 <= done_d6;
+    done_d8 <= done_d7;
+    done_d9 <= done_d8;
+    done_d10 <= done_d9;
+    done_d11 <= done_d10;
+    done_d12 <= done_d11;
+    done_d13 <= done_d12;
+    done_d14 <= done_d13;
+    done_d15 <= done_d14;
+end
 spi_rm3100 spi_rm3100(
     .clk(clk_1m92),
     .rst(rst),
     .sclk(sclk),
     .data_tx(data_tx),
     .data_rx(data_rx),
-    .req(req),
+    .req(req_reg),
     .wr_en(wr_en),
     .tx(mosi),
     .rx(miso),
     .cs_n(cs_n),
-    .done(done)
+    .done(done_reg)
 );
 
 // always@(posedge clk_42mhz)begin
@@ -225,6 +251,28 @@ spi_rm3100 spi_rm3100(
 //     else
 //         req <= 1'b0;
 // end
+
+always@(posedge clk_42mhz)begin
+    req_d1 <= req;
+    req_d2 <= req_d1;
+    req_d3 <= req_d2;
+    req_d4 <= req_d3;
+    req_d5 <= req_d4;
+    req_d6 <= req_d5;
+    req_d7 <= req_d6;
+    req_d8 <= req_d7;
+    req_d9 <= req_d8;
+    req_d10 <= req_d9;
+    req_d11 <= req_d10;
+    req_d12 <= req_d11;
+    req_d13 <= req_d12;
+    req_d14 <= req_d13;
+    req_d15 <= req_d14;
+end
+
+assign done = ~done_d14 & done_d15;
+
+assign req_reg = req | req_d1 | req_d2 | req_d3 | req_d4 | req_d5 | req_d6 | req_d7 | req_d8 | req_d9 | req_d10 | req_d11 | req_d12 | req_d13 | req_d14 | req_d15;
 
 always@(posedge clk_42mhz)begin
     clk_cnt <= clk_cnt + 1'b1;
@@ -241,7 +289,7 @@ always@(posedge clk_42mhz)
 always@(posedge clk_42mhz)begin
     if(rx_cnt==6'd2&&rx1_ready)
         spi_flag <= 1'b1;
-    else if(cnt==5'd17&&done)
+    else if(cnt==5'd21)
         spi_flag <= 1'b0;
     else
         spi_flag <= spi_flag;
@@ -257,12 +305,18 @@ always@(posedge clk_42mhz)begin
                     req <= 1'b1;
                 else
                     req <= 1'b0;
-                wr_en <= 1'b1;
+                wr_en <= 1'b0;
                 data_tx <= 16'h0004;
-                if(done)
+                // wr_en <= 1'b0;
+                // data_tx <= 16'h0005;
+                if(done) begin
+                    // temp1 <= data_rx;
                     cnt <= cnt + 1'b1;
-                else
+                end
+                else begin
+                    // temp1 <= temp1;
                     cnt <= cnt;
+                end
             end
             5'd2:begin
                 if(cnt_d1==5'd1)
@@ -271,17 +325,21 @@ always@(posedge clk_42mhz)begin
                     req <= 1'b0;
                 wr_en <= 1'b1;
                 data_tx <= 16'h3205;
-                if(done)
+                if(done) begin
                     cnt <= cnt + 1'b1;
-                else
+                    // temp1 <= data_rx;
+                end
+                else begin
+                    // temp1 <= temp1;
                     cnt <= cnt;
+                end
             end
             5'd3:begin
                 if(cnt_d1==5'd2)
                     req <= 1'b1;
                 else
                     req <= 1'b0;
-                wr_en <= 1'b1;
+                wr_en <= 1'b0;
                 data_tx <= 16'h0006;
                 if(done)
                     cnt <= cnt + 1'b1;
@@ -305,7 +363,7 @@ always@(posedge clk_42mhz)begin
                     req <= 1'b1;
                 else
                     req <= 1'b0;
-                wr_en <= 1'b1;
+                wr_en <= 1'b0;
                 data_tx <= 16'h0008;
                 if(done)
                     cnt <= cnt + 1'b1;
@@ -325,16 +383,34 @@ always@(posedge clk_42mhz)begin
                     cnt <= cnt;
             end
             5'd7:begin
+                // if(cnt_d1==5'd6)
+                //     req <= 1'b1;
+                // else
+                //     req <= 1'b0;
+                // wr_en <= 1'b1;
+                // data_tx <= 16'h950b;
+                // if(done) begin
+                //     // temp1 <= data_rx;
+                //     cnt <= cnt + 1'b1;
+                // end
+                // else begin
+                //     // temp1 <= temp1;
+                //     cnt <= cnt;
+                // end
                 if(cnt_d1==5'd6)
                     req <= 1'b1;
                 else
                     req <= 1'b0;
-                wr_en <= 1'b1;
-                data_tx <= 16'h920b;
-                if(done)
+                wr_en <= 1'b0;
+                data_tx <= 16'h000b;
+                if(done) begin
+                    temp2 <= data_rx;
                     cnt <= cnt + 1'b1;
-                else
+                end
+                else begin
+                    temp2 <= temp2;
                     cnt <= cnt;
+                end
             end
             5'd8:begin
                 if(cnt_d1==5'd7)
@@ -355,10 +431,14 @@ always@(posedge clk_42mhz)begin
                     req <= 1'b0;
                 wr_en <= 1'b1;
                 data_tx <= 16'h7000;
-                if(done)
+                if(done)begin
                     cnt <= cnt + 1'b1;
-                else
+                    temp1 <= 8'h0;
+                end
+                else begin
                     cnt <= cnt;
+                    temp1 <= temp1;
+                end
             end
             5'd10:begin
                 req <= 1'b0;
@@ -373,13 +453,17 @@ always@(posedge clk_42mhz)begin
                     req <= 1'b0;
                 wr_en <= 1'b0;
                 data_tx <= 16'h0034;
-                if(done)
+                if(done)begin
+                    temp1 <= temp1+ 1'b1;
                     if(data_rx==8'h80)
                         cnt <= cnt + 1'b1;
                     else
                         cnt <= 5'd10;
-                else
+                end
+                else begin
+                    temp1 <= temp1;
                     cnt <= cnt;
+                end
             end
             5'd12:begin
                 if(cnt_d1==5'd11)
