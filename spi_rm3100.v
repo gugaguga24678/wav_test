@@ -54,7 +54,7 @@ always@(posedge clk)begin
     if(req)
         flag_reg <= 1'b1;
     else if(done)
-        flag_reg <= 1'b1;
+        flag_reg <= 1'b0;
     else
         flag_reg <= flag_reg;
 end
@@ -356,7 +356,7 @@ always@(posedge clk)begin
                 tx_reg <= data_tx_reg[8];
             else
                 tx_reg <= 1'b0;
-            data_rx_reg <= data_rx_reg;
+            data_rx_reg[0] <= rx;
             data_tx_reg <= data_tx_reg;
             data_rx <= data_rx;
             done <= 1'b0;
@@ -382,16 +382,3 @@ always@(posedge clk)begin
         end
     endcase
 end
-
-always@(posedge clk)begin
-    // tx <= tx_reg;
-    //cs_n <= cs_n_reg;
-end
-
-assign tx = tx_reg;
-
-assign cs_n = cs_n_reg;
-
-assign sclk = clk_flag ? clk_0m96 : 1'b1;
-
-endmodule
