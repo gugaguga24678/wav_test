@@ -98,10 +98,10 @@ always@(posedge clk)begin
         9'd6:begin
             clk_flag <= 1'b1;
             if(wr_en)
-                tx_reg <= 1'b0;
-            else
                 tx_reg <= 1'b1;
-            data_rx_reg <= 8'b0;
+            else
+                tx_reg <= 1'b0;
+            data_rx_reg <= 16'b0;
             data_tx_reg <= data_tx_reg;
             data_rx <= data_rx;
             done <= 1'b0;
